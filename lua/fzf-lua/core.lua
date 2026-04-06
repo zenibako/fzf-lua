@@ -269,6 +269,11 @@ M.fzf_wrap = function(cmd, opts, convert_actions)
   -- Do not strt fzf, return the stringified contents and opts onlu
   -- used by the "combine" picker to merge inputs
   if opts._start == false then return nil, cmd, opts end
+  -- Defer if called from a textlock/fast-event context (E565)
+  -- `vim.cmd("")` is a no-op that throws under textlock, use it to detect the restriction
+  if not pcall(vim.cmd, "") then
+    return vim.schedule(function() M.fzf_wrap(cmd, opts, convert_actions) end)
+  end
   local _co, fn_selected
   coroutine.wrap(function()
     _co = coroutine.running()
