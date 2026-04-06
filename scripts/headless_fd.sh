@@ -22,7 +22,9 @@ usage() {
 set -o noclobber -o nounset
 
 # MacOs: `brew install gnu-getopt && brew link --force gnu-getopt`
-if [ -x /usr/local/bin/getopt ]; then
+if [ -x /opt/homebrew/opt/gnu-getopt/bin/getopt ]; then
+    GETOPT=/opt/homebrew/opt/gnu-getopt/bin/getopt
+elif [ -x /usr/local/bin/getopt ]; then
     GETOPT=/usr/local/bin/getopt
 fi
 
