@@ -36,7 +36,15 @@ do
   -- fixed $NVIM_LISTEN_ADDRESS, different neovim instances will use the same path
   -- as their address and messages won't be received on older instances
   if not vim.g.fzf_lua_server then
-    local ok, srv = pcall(vim.fn.serverstart, "fzf-lua." .. os.time())
+    -- Neovim 0.12 rejects a bare relative socket name with EINVAL ("invalid
+    -- argument"); it only accepts an absolute path (or a Windows pipe name).
+    -- Retry under `stdpath("run")` -- the very directory the error below
+    -- points at -- so older versions and Windows keep their existing address.
+    local name = "fzf-lua." .. os.time()
+    local ok, srv = pcall(vim.fn.serverstart, name)
+    if not ok then
+      ok, srv = pcall(vim.fn.serverstart, vim.fn.stdpath("run") .. "/" .. name)
+    end
     if ok then
       vim.g.fzf_lua_server = srv
     else
